@@ -4,11 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Jurnal Kebiasaan Positif Siswa - Bimbingan & Konseling</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   
   <style>
-    /* Format khusus saat tombol Cetak / Ctrl+P ditekan */
+    /* Format tata letak dokumen saat cetak / simpan ke PDF */
     @media print {
       body {
         background: white !important;
@@ -23,9 +25,7 @@
         width: 100% !important;
         box-shadow: none !important;
         border: none !important;
-      }
-      .print-border {
-        border: 1px solid #333 !important;
+        padding: 0 !important;
       }
     }
   </style>
@@ -46,7 +46,7 @@
 
     <div class="p-5 space-y-4">
       
-      <!-- ================= STEP 1: LOGIN NIS ================= -->
+      <!-- ================= STEP 1: FORM LOGIN NIS ================= -->
       <div id="loginSection" class="space-y-4 no-print">
         <div class="text-center space-y-1 mb-2">
           <h2 class="text-sm font-bold text-slate-700">Masuk dengan NIS</h2>
@@ -83,7 +83,7 @@
       <!-- ================= STEP 2: DASHBOARD & NAVIGASI TAB ================= -->
       <div id="appSection" class="hidden space-y-4">
         
-        <!-- Kartu Profil Ringkas (no-print) -->
+        <!-- Kartu Profil Ringkas -->
         <div class="no-print bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-3.5 flex justify-between items-center shadow-sm">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
@@ -104,7 +104,7 @@
           </div>
         </div>
 
-        <!-- Tombol Switch Antara Check-In vs Rekap (no-print) -->
+        <!-- Tombol Switch Tab (Check-In vs Rekap) -->
         <div class="no-print flex bg-slate-100 p-1 rounded-xl text-xs font-semibold">
           <button id="tabBtnCheckin" onclick="switchTab('checkin')" class="flex-1 py-2 rounded-lg bg-white shadow-sm text-indigo-600 transition">
             <i class="fa-solid fa-square-check mr-1"></i> Check-In Harian
@@ -150,7 +150,7 @@
         <!-- TAB KONTEN 2: REKAP LAPORAN & CETAK -->
         <div id="tabReport" class="hidden space-y-4">
           
-          <!-- Tombol Cetak / Download PDF (Hanya di layar) -->
+          <!-- Tombol Cetak / PDF -->
           <div class="no-print flex justify-between items-center gap-2">
             <p class="text-xs text-slate-500">Rekap riwayat check-in yang tercatat di sistem:</p>
             <button onclick="window.print()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm">
@@ -158,10 +158,10 @@
             </button>
           </div>
 
-          <!-- Area yang Dicetak (Muncul rapi di kertas) -->
+          <!-- Area Cetak Laporan Resmi -->
           <div id="printArea" class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-white space-y-4">
             
-            <!-- Kop Dokumen Resmi Cetak -->
+            <!-- Kop Laporan Resmi -->
             <div class="border-b-2 border-slate-800 pb-3 text-center">
               <h2 class="text-sm font-black uppercase tracking-wider text-slate-900">Laporan Jurnal Kebiasaan Siswa</h2>
               <p class="text-[11px] text-slate-600">Layanan Bimbingan dan Konseling (BK) Sekolah</p>
@@ -180,7 +180,7 @@
               <table class="w-full text-[11px] text-left border-collapse border border-slate-300">
                 <thead>
                   <tr class="bg-slate-100 text-slate-700">
-                    <th class="border border-slate-300 p-2 w-20">Tanggal</th>
+                    <th class="border border-slate-300 p-2 w-28">Tanggal</th>
                     <th class="border border-slate-300 p-2">Target Selesai</th>
                     <th class="border border-slate-300 p-2">Refleksi / Catatan</th>
                     <th class="border border-slate-300 p-2 text-center w-12">XP</th>
@@ -194,7 +194,7 @@
               </table>
             </div>
 
-            <!-- Kolom Tanda Tangan (Hanya muncul optimal saat dicetak) -->
+            <!-- Lembar Tanda Tangan Konseling -->
             <div class="pt-6 grid grid-cols-2 text-center text-xs">
               <div>
                 <p>Mengetahui,</p>
@@ -229,11 +229,29 @@
   </div>
 
   <script>
+    // URL Google Apps Script yang sudah tersambung
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzry7jH5iDjiLiDaWkeK2eruArdoBIuIfg71zuIrlSiciNp5CKp41oKKuheDXlTZf9IPA/exec";
 
     let currentUser = null;
     let habitData = [];
 
+    // Fungsi Format Tanggal Indonesia (Contoh: 04 Oktober 2026)
+    function formatTanggalIndo(tglStr) {
+      if (!tglStr) return "-";
+      try {
+        const date = new Date(tglStr);
+        if (isNaN(date.getTime())) return tglStr;
+        return date.toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric"
+        });
+      } catch (e) {
+        return tglStr;
+      }
+    }
+
+    // Fungsi Login Siswa
     async function handleLogin() {
       const nisInput = document.getElementById("inputNis");
       const nis = nisInput.value.trim();
@@ -257,13 +275,13 @@
           currentUser = data.user;
           habitData = data.habits || [];
 
-          // Tampilkan profil siswa
+          // Pasang data profil siswa
           document.getElementById("namaSiswa").innerText = currentUser.nama;
           document.getElementById("kelasSiswa").innerText = `Kelas ${currentUser.kelas} • NIS: ${currentUser.nis}`;
           document.getElementById("streakSiswa").innerText = currentUser.streak;
           document.getElementById("xpSiswa").innerText = `${currentUser.xp} XP`;
 
-          // Set info ke form laporan cetak
+          // Set info ke dokumen cetak
           document.getElementById("rptNama").innerText = currentUser.nama;
           document.getElementById("rptNis").innerText = currentUser.nis;
           document.getElementById("rptKelas").innerText = currentUser.kelas;
@@ -286,6 +304,7 @@
       }
     }
 
+    // Navigasi Tab
     function switchTab(tab) {
       const btnCheckin = document.getElementById("tabBtnCheckin");
       const btnReport = document.getElementById("tabBtnReport");
@@ -306,9 +325,10 @@
       }
     }
 
+    // Ambil Data Laporan & Format Tanggal
     async function loadReportData() {
       const tbody = document.getElementById("reportTableBody");
-      tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat log riwayat siswa...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat riwayat siswa...</td></tr>`;
 
       try {
         const response = await fetch(`${SCRIPT_URL}?action=getReport&nis=${encodeURIComponent(currentUser.nis)}`);
@@ -317,9 +337,10 @@
         if (data.status === "success" && data.logs.length > 0) {
           tbody.innerHTML = "";
           data.logs.forEach(log => {
+            const tglIndo = formatTanggalIndo(log.tanggal);
             tbody.innerHTML += `
               <tr class="border-b border-slate-200 hover:bg-slate-50">
-                <td class="border border-slate-300 p-2 font-medium">${log.tanggal}</td>
+                <td class="border border-slate-300 p-2 font-medium whitespace-nowrap">${tglIndo}</td>
                 <td class="border border-slate-300 p-2">${log.habits}</td>
                 <td class="border border-slate-300 p-2 text-slate-600 italic">${log.refleksi}</td>
                 <td class="border border-slate-300 p-2 text-center font-bold text-emerald-600">+${log.xp}</td>
@@ -374,6 +395,7 @@
       document.getElementById("selectedCountBadge").innerText = `${count} dipilih`;
     }
 
+    // Simpan Check-in Harian
     async function submitCheckin() {
       const checkedBoxes = document.querySelectorAll(".habit-check:checked");
       const statusBox = document.getElementById("submitStatus");
